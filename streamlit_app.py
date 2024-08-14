@@ -2,12 +2,10 @@ import streamlit as st
 import requests
 from datetime import datetime, timedelta
 
-
-# Inject custom CSS for a football-themed page with background image
+# Inject custom CSS for styling
 st.markdown(
     f"""
     <style>
-    /* General page styling */
     body {{
         background-size: cover;
         font-family: 'Arial', sans-serif;
@@ -16,15 +14,13 @@ st.markdown(
         margin: 0;
     }}
     
-    /* Container for the main app */
     .main {{
         padding: 20px;
-        background-color: rgba(28, 30, 38, 0.8); /* semi-transparent background */
+        background-color: rgba(28, 30, 38, 0.8);
         border-radius: 15px;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     }}
     
-    /* Title Styling */
     h1 {{
         text-align: center;
         color: #F9A825;
@@ -32,25 +28,41 @@ st.markdown(
         margin-bottom: 30px;
     }}
 
-    /* Styling for the selectbox */
-    .stSelectbox label {{
-        font-size: 20px;
-        font-weight: bold;
-        color: #F9A825;
-    }}
-    
-    .stSelectbox div[data-testid="stMarkdownContainer"] {{
+    .match-container {{
         background-color: #283593;
-        border-radius: 8px;
-        padding: 10px;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
     }}
     
-    .stSelectbox div[data-testid="stMarkdownContainer"] select {{
-        background-color: #1E88E5;
-        color: #fff;
+    .match-header {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
     }}
-    
-    /* Button styling */
+
+    .team-container {{
+        flex: 1;
+        text-align: center;
+    }}
+
+    .vs-container {{
+        flex: 0.2;
+        text-align: center;
+    }}
+
+    .match-location {{
+        text-align: center;
+        color: #FAFAFA;
+        margin-top: 10px;
+    }}
+
+    .predict-button-container {{
+        text-align: center;
+        margin-top: 20px;
+    }}
+
     button {{
         background-color: #F9A825;
         color: #0B3D91;
@@ -65,38 +77,6 @@ st.markdown(
     button:hover {{
         background-color: #FFA726;
     }}
-    
-    /* Placeholder image styling */
-    .football-image {{
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        margin-top: 20px;
-        border-radius: 15px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-        max-width: 100%;
-    }}
-    
-    /* Prediction result styling */
-    .prediction-result {{
-        background-color: #283593;
-        padding: 15px;
-        border-radius: 8px;
-        text-align: center;
-        margin-top: 30px;
-        font-size: 1.5rem;
-    }}
-
-    /* Footer styling */
-    footer {{
-        text-align: center;
-        padding: 20px;
-        background-color: rgba(28, 30, 38, 0.8);
-        color: #FAFAFA;
-        font-size: 0.8rem;
-        margin-top: 40px;
-        border-radius: 15px;
-    }}
     </style>
     """,
     unsafe_allow_html=True
@@ -109,6 +89,48 @@ st.markdown("<h1>Bundesliga Match Prediction</h1>", unsafe_allow_html=True)
 # Constants
 API_TOKEN = '9c8a155aeb054f72a7c6b93e6416b2bf'
 BASE_URL = "https://api.football-data.org/v4/competitions/BL1/matches"
+
+club_icons = {
+    "FC Augsburg": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000010.svg",
+    "1. FC Union Berlin": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000V.svg",
+    "VfL Bochum 1848": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000S.svg",
+    "SV Werder Bremen": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000E.svg",
+    "FC St. Pauli 1910": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000H.svg",  # Updated name
+    "Borussia Dortmund": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000007.svg",
+    "Eintracht Frankfurt": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000F.svg",
+    "SC Freiburg": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000A.svg",
+    "1. FC Heidenheim 1846": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000018.svg",
+    "TSG 1899 Hoffenheim": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000002.svg",
+    "Holstein Kiel": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000N5P.svg",
+    "RB Leipzig": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000017.svg",
+    "Bayer 04 Leverkusen": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000B.svg",
+    "1. FSV Mainz 05": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000006.svg",
+    "Borussia Mönchengladbach": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000004.svg",
+    "FC Bayern München": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000G.svg",
+    "VfB Stuttgart": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000D.svg",
+    "VfL Wolfsburg": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000003.svg"
+}
+
+club_locations = {
+    "FC Augsburg": "WWK ARENA",
+    "1. FC Union Berlin": "An der Alten Försterei",
+    "VfL Bochum 1848": "Vonovia Ruhrstadion",
+    "SV Werder Bremen": "Weser-Stadion",
+    "FC St. Pauli 1910": "Millerntor-Stadion",  # Updated name
+    "Borussia Dortmund": "SIGNAL IDUNA PARK",
+    "Eintracht Frankfurt": "Deutsche Bank Park",
+    "SC Freiburg": "Europa-Park Stadion",
+    "1. FC Heidenheim 1846": "Voith-Arena",
+    "TSG 1899 Hoffenheim": "PreZero Arena",
+    "Holstein Kiel": "Holstein-Stadion",
+    "RB Leipzig": "Red Bull Arena",
+    "Bayer 04 Leverkusen": "BayArena",
+    "1. FSV Mainz 05": "MEWA ARENA",
+    "Borussia Mönchengladbach": "BORUSSIA-PARK",
+    "FC Bayern München": "Allianz Arena",
+    "VfB Stuttgart": "MHPArena",
+    "VfL Wolfsburg": "Volkswagen Arena"
+}
 
 # Function to fetch matches
 def get_upcoming_matches():
@@ -140,21 +162,39 @@ def get_upcoming_matches():
     
     return match_list
 
-
 matches = get_upcoming_matches()
 
 if matches:
-    selected_match = st.selectbox(
-        "Select a match:",
-        matches,
-        format_func=lambda match: f"{match['home_team']} vs {match['away_team']} on {match['date']}"
-    )
-    
-    if st.button("Predict"):
-        home_team = selected_match['home_team']
-        away_team = selected_match['away_team']
+    for match in matches:
+        home_team = name_mapping.get(match['home_team'], match['home_team'])
+        away_team = name_mapping.get(match['away_team'], match['away_team'])
+        date = match['date']
+        location = club_locations.get(home_team, "Unknown Location")
         
-        #placeholder
-        st.write(f"Prediction: {home_team} vs {away_team} will end in a draw!")
+        st.markdown(f"""
+            <div class="match-container">
+                <div class="match-header">
+                    <div class="team-container">
+                        <img src="{club_icons[home_team]}" alt="{home_team} Logo" width="80" />
+                        <h3 style="color: #FAFAFA;">{home_team}</h3>
+                    </div>
+                    <div class="vs-container">
+                        <h2 style="color: #F9A825;">VS</h2>
+                        <p style="color: #FAFAFA;">{date}</p>
+                    </div>
+                    <div class="team-container">
+                        <img src="{club_icons[away_team]}" alt="{away_team} Logo" width="80" />
+                        <h3 style="color: #FAFAFA;">{away_team}</h3>
+                    </div>
+                </div>
+                <p class="match-location">Location: {location}</p>
+                <div class="predict-button-container">
+        """, unsafe_allow_html=True)
+        
+        if st.button(f"Predict {home_team} vs {away_team}"):
+            st.write(f"Prediction: {home_team} vs {away_team} will end in a draw!")
+        
+        st.markdown("</div></div>", unsafe_allow_html=True)
 else:
     st.write("No upcoming matches found.")
+

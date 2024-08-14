@@ -132,6 +132,28 @@ club_locations = {
     "VfL Wolfsburg": "Volkswagen Arena"
 }
 
+name_mapping = {
+    "FC Augsburg": "FC Augsburg",
+    "1. FC Union Berlin": "1. FC Union Berlin",
+    "VfL Bochum 1848": "VfL Bochum 1848",
+    "SV Werder Bremen": "SV Werder Bremen",
+    "FC St. Pauli 1910": "FC St. Pauli",
+    "Borussia Dortmund": "Borussia Dortmund",
+    "Eintracht Frankfurt": "Eintracht Frankfurt",
+    "SC Freiburg": "SC Freiburg",
+    "1. FC Heidenheim 1846": "1. FC Heidenheim 1846",
+    "TSG 1899 Hoffenheim": "TSG Hoffenheim",
+    "Holstein Kiel": "Holstein Kiel",
+    "RB Leipzig": "RB Leipzig",
+    "Bayer 04 Leverkusen": "Bayer 04 Leverkusen",
+    "1. FSV Mainz 05": "1. FSV Mainz 05",
+    "Borussia Mönchengladbach": "Borussia Mönchengladbach",
+    "FC Bayern München": "FC Bayern München",
+    "VfB Stuttgart": "VfB Stuttgart",
+    "VfL Wolfsburg": "VfL Wolfsburg"
+}
+
+
 # Function to fetch matches
 def get_upcoming_matches():
     today = datetime.now().strftime('%Y-%m-%d')
@@ -197,4 +219,3 @@ if matches:
         st.markdown("</div></div>", unsafe_allow_html=True)
 else:
     st.write("No upcoming matches found.")
-

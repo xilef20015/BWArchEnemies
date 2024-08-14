@@ -90,17 +90,18 @@ st.markdown("<h1>Bundesliga Match Prediction</h1>", unsafe_allow_html=True)
 API_TOKEN = '9c8a155aeb054f72a7c6b93e6416b2bf'
 BASE_URL = "https://api.football-data.org/v4/competitions/BL1/matches"
 
+# Club icons mapping
 club_icons = {
     "FC Augsburg": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000010.svg",
     "1. FC Union Berlin": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000V.svg",
     "VfL Bochum 1848": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000S.svg",
     "SV Werder Bremen": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000E.svg",
-    "FC St. Pauli 1910": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000H.svg",  # Updated name
+    "FC St. Pauli": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000H.svg", 
     "Borussia Dortmund": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000007.svg",
     "Eintracht Frankfurt": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000F.svg",
     "SC Freiburg": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000A.svg",
     "1. FC Heidenheim 1846": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000018.svg",
-    "TSG 1899 Hoffenheim": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000002.svg",
+    "TSG Hoffenheim": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000002.svg",
     "Holstein Kiel": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000N5P.svg",
     "RB Leipzig": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000017.svg",
     "Bayer 04 Leverkusen": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-00000B.svg",
@@ -111,17 +112,18 @@ club_icons = {
     "VfL Wolfsburg": "https://www.bundesliga.com/assets/clublogo/DFL-CLU-000003.svg"
 }
 
+# Club locations mapping
 club_locations = {
     "FC Augsburg": "WWK ARENA",
     "1. FC Union Berlin": "An der Alten Försterei",
     "VfL Bochum 1848": "Vonovia Ruhrstadion",
     "SV Werder Bremen": "Weser-Stadion",
-    "FC St. Pauli 1910": "Millerntor-Stadion",  # Updated name
+    "FC St. Pauli": "Millerntor-Stadion",
     "Borussia Dortmund": "SIGNAL IDUNA PARK",
     "Eintracht Frankfurt": "Deutsche Bank Park",
     "SC Freiburg": "Europa-Park Stadion",
     "1. FC Heidenheim 1846": "Voith-Arena",
-    "TSG 1899 Hoffenheim": "PreZero Arena",
+    "TSG Hoffenheim": "PreZero Arena",
     "Holstein Kiel": "Holstein-Stadion",
     "RB Leipzig": "Red Bull Arena",
     "Bayer 04 Leverkusen": "BayArena",
@@ -132,6 +134,7 @@ club_locations = {
     "VfL Wolfsburg": "Volkswagen Arena"
 }
 
+# Name mapping from API to desired display names
 name_mapping = {
     "FC Augsburg": "FC Augsburg",
     "1. FC Union Berlin": "1. FC Union Berlin",
@@ -152,7 +155,6 @@ name_mapping = {
     "VfB Stuttgart": "VfB Stuttgart",
     "VfL Wolfsburg": "VfL Wolfsburg"
 }
-
 
 # Function to fetch matches
 def get_upcoming_matches():
@@ -183,6 +185,7 @@ def get_upcoming_matches():
         match['date'] = datetime.strptime(match['date'], "%Y-%m-%dT%H:%M:%SZ").strftime('%d/%m/%Y %H:%M')
     
     return match_list
+
 
 matches = get_upcoming_matches()
 

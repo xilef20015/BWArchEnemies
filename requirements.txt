@@ -1,6 +1,6 @@
-numpy
-scipy
-scikit-learn
-pandas
-streamlit
-requests
+streamlit==1.18.0
+pandas==1.4.0
+scikit-learn==1.1.0
+numpy==1.23.0
+scipy==1.9.1
+requests==2.27.1

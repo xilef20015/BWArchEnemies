@@ -1,51 +1,103 @@
 import pandas as pd
 import numpy as np
-import seaborn as sns
-
+from sklearn.metrics import mean_squared_error, accuracy_score, confusion_matrix
 from Metrics import *
 
-from sklearn.metrics import accuracy_score, confusion_matrix, root_mean_squared_error, make_scorer
+data_path = "bundesliga.csv"
 
-df_data = pd.read_csv("/Users/nilsweigeldt/Desktop/capstone2/BWArchenemies/data/bundesliga.csv")
-y_target = df_data.winner.values
+class BaselineModel:
+    def __init__(self, data_path):
+        """
+        Initialize the BaselineModel with the data from the CSV file.
+        
+        Args:
+        data_path (str): The path to the CSV file containing match data.
+        """
+        # Load dataset
+        self.df_data = pd.read_csv(data_path)
 
-"""
-    Baseline model for Win Probability Prediction:
-    relative frequncy of possible outcomes 
-"""
+        # Calculate team-specific averages for home and away performance
+        self.team_stats = self.calculate_team_stats()
 
+    def calculate_team_stats(self):
+        """
+        Calculate team-specific statistics for both home and away games.
+        
+        Returns:
+        pandas.DataFrame: A DataFrame containing the average goals scored and conceded 
+        for each team at home and away.
+        """
+        # Group by home team and away team to calculate team-specific stats
+        home_stats = self.df_data.groupby('home_team').agg(
+            home_goals_mean=('home_goals', 'mean'),
+            home_goals_conceded_mean=('away_goals', 'mean')
+        )
+        
+        away_stats = self.df_data.groupby('away_team').agg(
+            away_goals_mean=('away_goals', 'mean'),
+            away_goals_conceded_mean=('home_goals', 'mean')
+        )
 
-win_prob = df_data.winner.value_counts(normalize=True)
-win_prob = win_prob.values
+        # Merge both stats to create a full profile for each team
+        team_stats = home_stats.join(away_stats, how='outer')
 
-y_pred = np.ones((len(df_data), len(win_prob))) * win_prob
-print(y_pred)
-    
-avg_RPS = make_scorer(avg_ranked_probability_score, needs_proba=True, greater_is_better=False, response_methode=["predict_proba", "predict"])
-#avg_rps = avg_RPS(y_true=y_target, y_pred_proba=y_pred)
-avg_rps = avg_ranked_probability_score(y_target, y_pred)
-print(avg_rps)
+        return team_stats
 
+    def predict(self, home_team, away_team):
+        """
+        Predict the outcome of a match between the home and away teams.
+        
+        Args:
+        home_team (str): The name of the home team.
+        away_team (str): The name of the away team.
+        
+        Returns:
+        dict: A dictionary containing predicted home goals, away goals.
+        """
+        # Retrieve the statistics for both teams
+        if home_team in self.team_stats.index and away_team in self.team_stats.index:
+            home_goals = self.team_stats.at[home_team, 'home_goals_mean']
+            home_conceded = self.team_stats.at[home_team, 'home_goals_conceded_mean']
+            away_goals = self.team_stats.at[away_team, 'away_goals_mean']
+            away_conceded = self.team_stats.at[away_team, 'away_goals_conceded_mean']
 
-"""
-    Baseline Model for exact score prediction
-    Mean/Median Scored goals for home and visitors
-"""
+            # Predict goals based on the average goals scored and conceded
+            predicted_home_goals = (home_goals + away_conceded) / 2
+            predicted_away_goals = (away_goals + home_conceded) / 2
 
-y_target_hg = df_data.home_goals.values
-y_target_ag = df_data.away_goals.values
-y_target_diff = y_target_hg - y_target_ag
+            prediction = {
+                "home_goals": predicted_home_goals,
+                "away_goals": predicted_away_goals
+            }
+        else:
+            # If teams not found in data, fallback to global averages
+            predicted_home_goals = self.df_data['home_goals'].mean()
+            predicted_away_goals = self.df_data['away_goals'].mean()
 
-home_score_mean = np.mean(y_target_hg)
-away_score_mean = np.mean(y_target_ag)
+            prediction = {
+                "home_goals": predicted_home_goals,
+                "away_goals": predicted_away_goals
+            }
 
-print(home_score_mean, away_score_mean)
+        return prediction
 
-y_pred_hg = np.ones(len(y_target_hg)) * home_score_mean
-y_pred_ag = np.ones(len(y_target_ag)) * away_score_mean
-y_pred_diff = y_pred_hg - y_pred_ag
+    def evaluate_rmse(self):
+        """
+        Evaluate the RMSE for home goals, away goals, and goal differences.
 
-rmse_hg = root_mean_squared_error(y_pred_hg, y_target_hg)
-rmse_ag = root_mean_squared_error(y_pred_ag, y_target_ag)
-rmse_diff = root_mean_squared_error(y_pred_diff, y_target_diff)
-print(rmse_hg, rmse_ag, rmse_diff)
+        Returns:
+        tuple: RMSE for home goals, away goals, and goal difference.
+        """
+        y_target_hg = self.df_data['home_goals'].values
+        y_target_ag = self.df_data['away_goals'].values
+        y_target_diff = y_target_hg - y_target_ag
+
+        y_pred_hg = np.ones(len(y_target_hg)) * self.df_data['home_goals'].mean()
+        y_pred_ag = np.ones(len(y_target_ag)) * self.df_data['away_goals'].mean()
+        y_pred_diff = y_pred_hg - y_pred_ag
+
+        rmse_hg = np.sqrt(mean_squared_error(y_pred_hg, y_target_hg))
+        rmse_ag = np.sqrt(mean_squared_error(y_pred_ag, y_target_ag))
+        rmse_diff = np.sqrt(mean_squared_error(y_pred_diff, y_target_diff))
+
+        return rmse_hg, rmse_ag, rmse_diff

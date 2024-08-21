@@ -5,48 +5,54 @@ import requests
 API_TOKEN = '9c8a155aeb054f72a7c6b93e6416b2bf'
 BASE_URL = "https://api.football-data.org/v4/competitions/BL1/matches"
 
-# Function to get team names from the API
-def get_team_names_from_api():
+# Load the historical data from CSV
+def load_data():
+    return pd.read_csv('df_bundesliga_recencyfeatures.csv')
+
+df_bundesliga = load_data()
+
+# Get the unique team names from the historical data
+historical_teams_home = df_bundesliga['home_team'].unique()
+historical_teams_away = df_bundesliga['away_team'].unique()
+historical_teams = set(historical_teams_home).union(set(historical_teams_away))
+
+# Fetch upcoming matches from the API
+def fetch_upcoming_matches():
     headers = {"X-Auth-Token": API_TOKEN}
-    today = pd.Timestamp.now().strftime('%Y-%m-%d')
-    end_date = (pd.Timestamp.now() + pd.Timedelta(days=14)).strftime('%Y-%m-%d')
-
-    params = {
-        "dateFrom": today,
-        "dateTo": end_date,
-        "status": "SCHEDULED",
-    }
-
-    response = requests.get(BASE_URL, headers=headers, params=params)
-    matches = response.json()
-
-    teams_api = set()
-
-    for match in matches['matches']:
-        teams_api.add(match['homeTeam']['name'])
-        teams_api.add(match['awayTeam']['name'])
-
-    return sorted(teams_api)
-
-# Function to get team names from the model dataset
-def get_team_names_from_model(dataset_path):
-    df = pd.read_csv(dataset_path)
-    teams_model = set(df['home_team'].unique()).union(set(df['away_team'].unique()))
+    response = requests.get(BASE_URL, headers=headers)
     
-    return sorted(teams_model)
+    if response.status_code != 200:
+        raise Exception(f"Failed to fetch data from API. Status code: {response.status_code}")
+    
+    matches = response.json()['matches']
+    return matches
+
+# Extract team names from the API matches
+def get_api_team_names(matches):
+    api_teams = set()
+    for match in matches:
+        api_teams.add(match['homeTeam']['name'])
+        api_teams.add(match['awayTeam']['name'])
+    return api_teams
+
+# Compare team names from API and historical data
+def compare_team_names():
+    # Fetch data from API
+    matches = fetch_upcoming_matches()
+    
+    # Get team names from API
+    api_teams = get_api_team_names(matches)
+    
+    # Compare historical team names with API team names
+    missing_in_api = historical_teams - api_teams
+    missing_in_historical = api_teams - historical_teams
+    
+    # Print the differences
+    print("\nTeams in Historical Data but missing in API Data:")
+    print(missing_in_api)
+    
+    print("\nTeams in API Data but missing in Historical Data:")
+    print(missing_in_historical)
 
 if __name__ == "__main__":
-    # Path to your CSV file with model data
-    dataset_path = 'df_bundesliga_recencyfeatures.csv'
-    
-    print("Fetching team names from API...")
-    teams_from_api = get_team_names_from_api()
-    print("Teams from API:")
-    for team in teams_from_api:
-        print(team)
-    
-    print("\nFetching team names from model dataset...")
-    teams_from_model = get_team_names_from_model(dataset_path)
-    print("Teams from Model Dataset:")
-    for team in teams_from_model:
-        print(team)
+    compare_team_names()

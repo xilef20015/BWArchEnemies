@@ -132,14 +132,20 @@ club_locations = {
 
 # Hardcoded Data (matches and predictions)
 matches_data = [
-    {"home_team": "Borussia Mönchengladbach", "away_team": "Bayer 04 Leverkusen", "home_win_prob": 22.79, "draw_prob": 35.23, "away_win_prob": 41.98, "total_goals": 4.9},
-    {"home_team": "RB Leipzig", "away_team": "VfL Bochum 1848", "home_win_prob": 72.61, "draw_prob": 14.49, "away_win_prob": 12.90, "total_goals": 3.0},
-    {"home_team": "SC Freiburg", "away_team": "VfB Stuttgart", "home_win_prob": 39.27, "draw_prob": 19.59, "away_win_prob": 41.14, "total_goals": 5.0},
-    {"home_team": "FC Augsburg", "away_team": "SV Werder Bremen", "home_win_prob": 83.62, "draw_prob": 9.93, "away_win_prob": 6.44, "total_goals": 4.8},
-    {"home_team": "1. FSV Mainz 05", "away_team": "1. FC Union Berlin", "home_win_prob": 32.25, "draw_prob": 37.91, "away_win_prob": 29.83, "total_goals": 3.3},
-    {"home_team": "Borussia Dortmund", "away_team": "Eintracht Frankfurt", "home_win_prob": 55.27, "draw_prob": 22.43, "away_win_prob": 22.30, "total_goals": 3.5},
-    {"home_team": "VfL Wolfsburg", "away_team": "FC Bayern M\u00fcnchen", "home_win_prob": 47.09, "draw_prob": 17.35, "away_win_prob": 35.56, "total_goals": 3.5}
+    {"home_team": "Borussia Mönchengladbach", "away_team": "Bayer 04 Leverkusen", "home_win_prob": 22.79, "draw_prob": 35.23, "away_win_prob": 41.98, "total_goals": 4.9, "date": "23/08/24 20:30"},
+    {"home_team": "RB Leipzig", "away_team": "VfL Bochum 1848", "home_win_prob": 72.61, "draw_prob": 14.49, "away_win_prob": 12.90, "total_goals": 3.0, "date": "24/08/24 15:30"},
+    {"home_team": "SC Freiburg", "away_team": "VfB Stuttgart", "home_win_prob": 39.27, "draw_prob": 19.59, "away_win_prob": 41.14, "total_goals": 5.0, "date": "24/08/24 15:30"},
+    {"home_team": "FC Augsburg", "away_team": "SV Werder Bremen", "home_win_prob": 83.62, "draw_prob": 9.93, "away_win_prob": 6.44, "total_goals": 4.8, "date": "24/08/24 15:30"},
+    {"home_team": "1. FSV Mainz 05", "away_team": "1. FC Union Berlin", "home_win_prob": 32.25, "draw_prob": 37.91, "away_win_prob": 29.83, "total_goals": 3.3, "date": "24/08/24 15:30"},
+    {"home_team": "Borussia Dortmund", "away_team": "Eintracht Frankfurt", "home_win_prob": 55.27, "draw_prob": 22.43, "away_win_prob": 22.30, "total_goals": 3.5, "date": "24/08/24 18:30"},
+    {"home_team": "VfL Wolfsburg", "away_team": "FC Bayern München", "home_win_prob": 47.09, "draw_prob": 17.35, "away_win_prob": 35.56, "total_goals": 3.5, "date": "25/08/24 15:30"},
+    
+    # Skipping matches due to missing data
+    {"home_team": "TSG 1899 Hoffenheim", "away_team": "Holstein Kiel", "data_missing": True, "date": "24/08/24 15:30"},
+    {"home_team": "FC St. Pauli", "away_team": "1. FC Heidenheim 1846", "data_missing": True, "date": "25/08/24 17:30"}
 ]
+
+
 
 # Function to fetch match dates from the API
 def fetch_match_dates():

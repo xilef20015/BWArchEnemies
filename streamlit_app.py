@@ -141,16 +141,17 @@ matches_data = [
     {"home_team": "VfL Wolfsburg", "away_team": "FC Bayern M\u00fcnchen", "home_win_prob": 47.09, "draw_prob": 17.35, "away_win_prob": 35.56, "total_goals": 3.5}
 ]
 
-# Function to fetch match dates from the API
+# Function to fetch match dates from the API (including past dates)
 def fetch_match_dates():
     headers = {"X-Auth-Token": API_TOKEN}
-    today = datetime.now().strftime('%Y-%m-%d')
+    
+    # Extend the range to include the past and future (e.g., 30 days back and 14 days forward)
+    start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
     end_date = (datetime.now() + timedelta(days=14)).strftime('%Y-%m-%d')
     
     params = {
-        "dateFrom": today,
+        "dateFrom": start_date,
         "dateTo": end_date,
-        "status": "SCHEDULED",
     }
     
     response = requests.get(BASE_URL, headers=headers, params=params)
@@ -211,5 +212,3 @@ for match in matches_data:
         st.write(f"**Draw Probability:** {draw_prob}%")
         st.write(f"**{away_team} Win Probability:** {away_win_prob}%")
         st.write(f"**Total Goals Predicted:** {match['total_goals']}")
-
-
